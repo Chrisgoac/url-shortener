@@ -1,0 +1,53 @@
+---
+import { db, User, like } from 'astro:db'
+import { getSession } from 'auth-astro/server';
+
+const session = await getSession(Astro.request);
+
+if(session){
+    if(session.user?.email && session.user?.name){
+      // If it's the first login, save to the database
+        const res = await db.select().from(User).where(
+            like(User.email, session.user?.email)
+        )
+
+        if(res.length === 0){
+            await db.insert(User).values({
+                email: session.user?.email,
+                name: session.user?.name
+            })
+        }  
+    }
+
+    
+}
+
+
+---
+
+<header>
+    {
+        session ? (
+          <p>Welcome {session.user?.name}</p>
+        ) : (
+          <p>Not logged in</p>
+        )
+    }
+
+    <button id="login">Login</button>
+    <button id="logout">Logout</button>
+
+    <script>
+        const { signIn, signOut } = await import("auth-astro/client")
+        const login = document.querySelector("#login") as HTMLButtonElement
+        const logout = document.querySelector("#logout") as HTMLButtonElement
+
+        if(login) {
+            login.onclick = () => signIn("google")
+        }
+
+        if(logout) {
+            logout.onclick = () => signOut()
+        }
+    </script>
+</header>
