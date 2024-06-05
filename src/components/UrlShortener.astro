@@ -1,0 +1,21 @@
+---
+import { getUserByEmail } from '../utils/db';
+import UrlShortenerReact from './UrlShortenerReact';
+import { getSession } from 'auth-astro/server';
+
+const session = await getSession(Astro.request)
+
+let userId: number | undefined
+
+if (session && session.user?.email) {
+  const res = await getUserByEmail(session.user.email)
+
+  if (res.success && res.data) {
+    userId = res.data.id
+  }
+}
+---
+
+<section>
+  <UrlShortenerReact userId={userId} client:load />
+</section>

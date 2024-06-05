@@ -1,3 +1,4 @@
+import { custom } from 'astro/zod';
 import { column, defineDb, defineTable } from 'astro:db';
 
 const User = defineTable({  
@@ -10,10 +11,11 @@ const User = defineTable({
 
 const ShortUrl = defineTable({
   columns: {
-    id: column.number({primaryKey: true}),
-    user_id: column.number({references: () => User.columns.id}),
+    id: column.number({ primaryKey: true }),
+    user_id: column.number({ references: () => User.columns.id, optional: true }),
     url: column.text(),
     code: column.text(),
+    custom: column.boolean(),
   }
 })
 
